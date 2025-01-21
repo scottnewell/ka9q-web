@@ -40,7 +40,7 @@
 #include "radio.h"
 #include "config.h"
 
-const char *webserver_version = "2.53";
+const char *webserver_version = "2.54-test";
 
 // no handlers in /usr/local/include??
 onion_handler *onion_handler_export_local_new(const char *localpath);
@@ -908,14 +908,8 @@ int extract_powers(float *power,int npower,uint64_t *time,double *freq,double *b
       int64_t N = (Frontend.L + Frontend.M - 1);
       if (0 == N)
          break;
-      double gain_cal = (2.0 / (double) N);
-      gain_cal *= gain_cal;
       for(int i=0; i < l_count; i++){
         power[i] = decode_float(cp,sizeof(float));
-
-        // gain_cal is temporary--once ka9q-radio incorporates the gain scaling,
-        // this will go away
-        power[i] *= gain_cal;
         cp += sizeof(float);
       }
       break;
@@ -1008,7 +1002,7 @@ int init_demod(struct channel *channel){
   channel->filter.min_IF = channel->filter.max_IF = channel->filter.kaiser_beta = NAN;
   channel->output.headroom = channel->linear.hangtime = channel->linear.recovery_rate = NAN;
   channel->sig.bb_power = channel->sig.snr = channel->sig.foffset = NAN;
-  channel->fm.pdeviation = channel->linear.cphase = NAN;
+  channel->fm.pdeviation = channel->pll.cphase = NAN;
   channel->output.gain = NAN;
   channel->tp1 = channel->tp2 = NAN;
   return 0;
