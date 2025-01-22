@@ -40,7 +40,7 @@
 #include "radio.h"
 #include "config.h"
 
-const char *webserver_version = "2.54-test";
+const char *webserver_version = "2.55-test";
 
 // no handlers in /usr/local/include??
 onion_handler *onion_handler_export_local_new(const char *localpath);
@@ -94,8 +94,8 @@ void *spectrum_thread(void *arg);
 void *ctrl_thread(void *arg);
 
 struct frontend Frontend;
-struct sockaddr_storage Metadata_source_socket;       // Source of metadata
-struct sockaddr_storage Metadata_dest_socket;         // Dest of metadata (typically multicast)
+struct sockaddr Metadata_source_socket;       // Source of metadata
+struct sockaddr Metadata_dest_socket;         // Dest of metadata (typically multicast)
 
 static int const DEFAULT_IP_TOS = 48;
 static int const DEFAULT_MCAST_TTL = 1;
@@ -601,7 +601,7 @@ static void *audio_thread(void *arg) {
 
   {
     pthread_mutex_lock(&output_dest_socket_mutex);
-    while(Channel.output.dest_socket.ss_family == 0)
+    while(Channel.output.dest_socket.sa_family == 0)
         pthread_cond_wait(&output_dest_socket_cond, &output_dest_socket_mutex);
     Input_fd = listen_mcast(&Channel.output.dest_socket,NULL);
     pthread_mutex_unlock(&output_dest_socket_mutex);
@@ -1196,7 +1196,7 @@ void *ctrl_thread(void *arg) {
             control_set_mode(sp,sp->requested_preset);
           }
 	  pthread_mutex_lock(&output_dest_socket_mutex);
-	  if(Channel.output.dest_socket.ss_family != 0)
+	  if(Channel.output.dest_socket.sa_family != 0)
 	    pthread_cond_broadcast(&output_dest_socket_cond);
 	  pthread_mutex_unlock(&output_dest_socket_mutex);
 	  struct rtp_header rtp;
